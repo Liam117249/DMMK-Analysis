@@ -84,11 +84,46 @@ if run_button and user_account_id:
         # --- ROW 3: Data Analysis Table ---
         st.subheader("Data Analysis Table (ML Ready)")
         
-        # Adding a filter for the table
-        filter_type = st.selectbox("Filter by Type", ["All"] + list(df['type'].unique()))
+        # Create three columns for our filters and sorting
+        filter_col1, filter_col2, sort_col = st.columns(3)
         
-        display_df = df if filter_type == "All" else df[df['type'] == filter_type]
+        with filter_col1:
+            # Filter by Asset (DMMK, nUSDT, etc.)
+            # We get the unique assets dynamically just in case there are others
+            asset_options = ["All"] + list(df['asset'].dropna().unique())
+            filter_asset = st.selectbox("Filter by Asset", asset_options)
+
+        with filter_col2:
+            # Filter by Transaction Type
+            type_options = ["All"] + list(df['type'].dropna().unique())
+            filter_type = st.selectbox("Filter by Type", type_options)
+            
+        with sort_col:
+            # Sort by Amount
+            sort_order = st.selectbox(
+                "Sort by Amount", 
+                ["Chronological (Default)", "Highest Amount First", "Lowest Amount First"]
+            )
+
+        # Apply the filters to a copy of our dataframe
+        display_df = df.copy()
         
+        if filter_asset != "All":
+            display_df = display_df[display_df['asset'] == filter_asset]
+            
+        if filter_type != "All":
+            display_df = display_df[display_df['type'] == filter_type]
+
+        # Apply the sorting
+        if sort_order == "Highest Amount First":
+            display_df = display_df.sort_values(by="amount", ascending=False)
+        elif sort_order == "Lowest Amount First":
+            display_df = display_df.sort_values(by="amount", ascending=True)
+        else:
+            # Keep it sorted by time (newest first)
+            display_df = display_df.sort_values(by="timestamp", ascending=False)
+
+        # Display the table (with comma formatting from earlier!)
         st.dataframe(
             display_df[["timestamp", "direction", "amount", "asset", "counterparty", "type"]],
             use_container_width=True,
@@ -101,10 +136,10 @@ if run_button and user_account_id:
             }
         )
 
-        # Download Button
+        # Download Button (updates dynamically based on your filters)
         csv = display_df.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="Export Cleaned Data for ML Training",
+            label=f"Export Cleaned Data ({filter_asset} Only)" if filter_asset != "All" else "Export All Cleaned Data",
             data=csv,
             file_name=f"stellar_ml_data_{user_account_id[:8]}.csv",
             mime='text/csv',
@@ -115,6 +150,7 @@ if run_button and user_account_id:
 
 else:
     st.info("Enter a Stellar Public Key in the sidebar to start.")
+
 
 
 
