@@ -100,7 +100,7 @@ if run_button and user_account_id:
                 )
             }
         )
-        )
+    
 
         # Download Button
         csv = display_df.to_csv(index=False).encode('utf-8')
@@ -116,6 +116,7 @@ if run_button and user_account_id:
 
 else:
     st.info("Enter a Stellar Public Key in the sidebar to start.")
+
 
 
 
