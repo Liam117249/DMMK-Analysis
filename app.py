@@ -46,10 +46,10 @@ if run_button and user_account_id:
 
         # --- ROW 1: Metric Cards ---
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Total Inflow", f"{metadata['total_in']} units")
-        col2.metric("Total Outflow", f"{metadata['total_out']} units")
-        col3.metric("Net Flow", f"{metadata['net_flow']} units")
-        col4.metric("Total Transactions", metadata['tx_frequency'])
+        col1.metric("Total Inflow", f"{metadata['total_in']:,.2f} units")
+        col2.metric("Total Outflow", f"{metadata['total_out']:,.2f} units")
+        col3.metric("Net Flow", f"{metadata['net_flow']:,.2f} units")
+        col4.metric("Total Transactions", f"{metadata['tx_frequency']:,}")
 
         # --- ROW 2: Graphs ---
         st.subheader("Financial Visualization")
@@ -89,10 +89,17 @@ if run_button and user_account_id:
         
         display_df = df if filter_type == "All" else df[df['type'] == filter_type]
         
-        st.dataframe(
+       st.dataframe(
             display_df[["timestamp", "direction", "amount", "asset", "counterparty", "type"]],
             use_container_width=True,
-            hide_index=True
+            hide_index=True,
+            column_config={
+                "amount": st.column_config.NumberColumn(
+                    "amount",
+                    format="%,.2f"
+                )
+            }
+        )
         )
 
         # Download Button
@@ -109,5 +116,6 @@ if run_button and user_account_id:
 
 else:
     st.info("Enter a Stellar Public Key in the sidebar to start.")
+
 
 
