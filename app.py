@@ -92,13 +92,7 @@ if run_button and user_account_id:
        st.dataframe(
             display_df[["timestamp", "direction", "amount", "asset", "counterparty", "type"]],
             use_container_width=True,
-            hide_index=True,
-            column_config={
-                "amount": st.column_config.NumberColumn(
-                    "amount",
-                    format="%,.2f"
-                )
-            }
+            hide_index=True
         )
     
 
